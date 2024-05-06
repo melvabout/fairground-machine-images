@@ -4,6 +4,11 @@ packer {
       version = "1.3.2"
       source  = "github.com/hashicorp/amazon"
     }
+    
+    ansible = {
+      version = "1.1.1"
+      source = "github.com/hashicorp/ansible"
+    }
   }
 }
 
@@ -44,5 +49,9 @@ build {
       "sudo apt-get -y install ansible",
       "echo ansible install complete",
     ]
+  }
+
+  provisioner "ansible-local" {
+    playbook_file   = "./playbook.yml"
   }
 }
