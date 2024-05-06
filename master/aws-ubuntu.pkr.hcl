@@ -7,8 +7,12 @@ packer {
   }
 }
 
+locals {
+  timestamp = regex_replace(timestamp(), "[- TZ:]", "")
+}
+
 source "amazon-ebs" "ubuntu-master" {
-  ami_name      = "k8-master-aws"
+  ami_name      = "k8-master-aws-${local.timestamp}"
   instance_type = "t2.micro"
   region        = "eu-west-2"
   source_ami_filter {
@@ -28,4 +32,17 @@ build {
   sources = [
     "source.amazon-ebs.ubuntu-master"
   ]
+
+  provisioner "shell" {
+    inline = [
+      "echo Upgrade",
+      "sudo apt-get update",
+      "sudo apt-get upgrade -y",
+      "echo Upgrade complete",
+      "echo Install ansible",
+      "sudo apt-add-repository -y ppa:ansible/ansible",
+      "sudo apt-get -y install ansible",
+      "echo ansible install complete",
+    ]
+  }
 }
