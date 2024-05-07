@@ -3,16 +3,30 @@
    gather_facts: false
 
    tasks:
-   - name: Enable Root Login
-     lineinfile:
-           dest: /etc/ssh/sshd_config
-           regexp: '^PermitRootLogin'
-           line: "PermitRootLogin yes"
-           state: present
-           backup: yes
-     become: true
-     notify:
-       - restart ssh
+    - name: Enable Root Login
+      ansible.builtin.lineinfile:
+        dest: /etc/ssh/sshd_config
+        regexp: '^PermitRootLogin'
+        line: "PermitRootLogin yes"
+        state: present
+        backup: yes
+      become: true
+      notify:
+        - restart ssh
+    
+    - name: Create ssh directory
+      become: true  
+      become_user: root
+      ansible.builtin.file:
+        path: /root/.ssh
+        state: directory
+    
+    - name: Create public ssh key
+      become: true  
+      become_user: root
+      ansible.builtin.copy:
+        dest: /root/.ssh/id_rsa.pub
+        src: /tmp/id_rsa.pub
 
    handlers:
     - name: restart ssh
