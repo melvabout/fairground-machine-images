@@ -21,17 +21,38 @@
         path: /root/.ssh
         state: directory
     
-    - name: Create public ssh key
+    - name: Create ssh directory
       become: true  
       become_user: root
-      ansible.builtin.copy:
-        dest: /root/.ssh/id_rsa.pub
-        src: /tmp/id_rsa.pub
+      ansible.builtin.shell:
+        cmd: cat /tmp/id_rsa.pub >>  /root/.ssh/authorized_keys
+
+    - name: Set persistent hostname
+      become: true
+      become_user: root
+      ansible.builtin.replace:
+        path: /etc/hosts
+        regexp: '127.0.0.1 localhost'
+        replace: '127.0.0.1 localhost server.kubernetes.local server'
+
+    - name: Set FQDN of hostname
+      become: true
+      become_user: root
+      ansible.builtin.shell:
+        cmd: hostnamectl set-hostname server
+
+    - name: Preserve Hostname
+      become: true
+      become_user: root
+      ansible.builtin.replace:
+        path: /etc/cloud/cloud.cfg
+        regexp: 'preserve_hostname: false'
+        replace: 'preserve_hostname: true'
 
    handlers:
     - name: restart ssh
       become: true
       become_user: root
-      service:
+      ansible.builtin.service:
         name: ssh
         state: restarted
