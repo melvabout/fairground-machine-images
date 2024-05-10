@@ -31,7 +31,7 @@
       become: true
       become_user: root
       ansible.builtin.shell:
-        cmd: hostnamectl set-hostname --static server
+        cmd: hostnamectl set-hostname --static {{ node_name }}
 
     - name: Preserve Hostname
       become: true
@@ -41,22 +41,13 @@
         regexp: 'preserve_hostname: false'
         replace: 'preserve_hostname: true'
 
-
-    # - name: Set persistent hostname
-    #   become: true
-    #   become_user: root
-    #   ansible.builtin.replace:
-    #     path: /etc/hosts
-    #     regexp: '127.0.0.1 localhost'
-    #     replace: '127.0.0.1 localhost server.kubernetes.local server'
-
     - name: Set FQDN of hostname
       become: true
       become_user: root
       ansible.builtin.replace:
         path: /etc/hosts
         regexp: '127.0.0.1   localhost localhost.localdomain localhost4 localhost4.localdomain4'
-        replace: '127.0.0.1   server.kubernetes.local server localhost4 localhost4.localdomain4'
+        replace: '127.0.0.1   {{ node_name }}.kubernetes.local {{ node_name }} localhost4 localhost4.localdomain4'
 
    handlers:
     - name: restart ssh

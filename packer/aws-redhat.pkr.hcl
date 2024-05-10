@@ -12,12 +12,17 @@ packer {
   }
 }
 
+variable "node_name" {
+  type    = string
+  description = "The name to give to the machine"
+}
+
 locals {
   timestamp = regex_replace(timestamp(), "[- TZ:]", "")
 }
 
-source "amazon-ebs" "redhat-master" {
-  ami_name      = "k8-master-aws-redhat-${local.timestamp}"
+source "amazon-ebs" "redhat-k8" {
+  ami_name      = "k8-${var.node_name}-aws-redhat-${local.timestamp}"
   instance_type = "t2.micro"
   region        = "eu-west-2"
   source_ami_filter {
@@ -33,9 +38,9 @@ source "amazon-ebs" "redhat-master" {
 }
 
 build {
-  name = "k8-master-packer"
+  name = "redhat-k8-packer"
   sources = [
-    "source.amazon-ebs.redhat-master"
+    "source.amazon-ebs.redhat-k8"
   ]
 
   provisioner "shell" {
@@ -56,5 +61,6 @@ build {
 
   provisioner "ansible-local" {
     playbook_file = "./playbook.yml"
+    extra_arguments = ["--extra-vars", "\"node_name=${var.node_name}\""]
   }
 }
