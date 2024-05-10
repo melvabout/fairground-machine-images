@@ -16,37 +16,35 @@ locals {
   timestamp = regex_replace(timestamp(), "[- TZ:]", "")
 }
 
-source "amazon-ebs" "ubuntu-master" {
-  ami_name      = "k8-master-aws-${local.timestamp}"
+source "amazon-ebs" "redhat-master" {
+  ami_name      = "k8-master-aws-redhat-${local.timestamp}"
   instance_type = "t2.micro"
   region        = "eu-west-2"
   source_ami_filter {
     filters = {
-      name                = "ubuntu/images/*ubuntu-jammy-22.04-amd64-server-*"
+      name                = "*RHEL-9.*_HVM-*-x86_64-*"
       root-device-type    = "ebs"
       virtualization-type = "hvm"
     }
     most_recent = true
-    owners      = ["099720109477"]
+    owners      = ["309956199498"]
   }
-  ssh_username = "ubuntu"
+  ssh_username = "ec2-user"
 }
 
 build {
   name = "k8-master-packer"
   sources = [
-    "source.amazon-ebs.ubuntu-master"
+    "source.amazon-ebs.redhat-master"
   ]
 
   provisioner "shell" {
     inline = [
       "echo Upgrade",
-      "sudo apt-get update",
-      "sudo apt-get upgrade -y",
-      "echo Upgrade complete",
+      "sudo yum update -y",
+      "echo Update complete",
       "echo Install ansible",
-      "sudo apt-add-repository -y ppa:ansible/ansible",
-      "sudo apt-get -y install ansible",
+      "sudo yum install ansible-core -y",
       "echo ansible install complete",
     ]
   }
