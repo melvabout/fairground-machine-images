@@ -48,6 +48,48 @@
         path: /etc/hosts
         regexp: '127.0.0.1   localhost localhost.localdomain localhost4 localhost4.localdomain4'
         replace: '127.0.0.1   {{ node_name }}.kubernetes.local {{ node_name }} localhost4 localhost4.localdomain4'
+  
+    - name: Copy ca key
+      become: true
+      become_user: root
+      ansible.builtin.copy:
+        src: /tmp/ca.key
+        dest: ~/ca.key
+
+    - name: Copy ca cert
+      become: true
+      become_user: root
+      ansible.builtin.copy:
+        src: /tmp/ca.crt
+        dest: ~/ca.crt
+    
+    - name: Copy api server key
+      become: true
+      become_user: root
+      ansible.builtin.copy:
+        src: /tmp/kube-api-server.key
+        dest: ~/kube-api-server.key
+
+    - name: Copy api server cert
+      become: true
+      become_user: root
+      ansible.builtin.copy:
+        src: /tmp/kube-api-server.crt
+        dest: ~/kube-api-server.crt
+
+    - name: Copy service accounts key
+      become: true
+      become_user: root
+      ansible.builtin.copy:
+        src: /tmp/service-accounts.key
+        dest: ~/service-accounts.key
+
+    - name: Copy service accounts cert
+      become: true
+      become_user: root
+      ansible.builtin.copy:
+        src: /tmp/service-accounts.crt
+        dest: ~/service-accounts.crt
 
    handlers:
     - name: restart ssh

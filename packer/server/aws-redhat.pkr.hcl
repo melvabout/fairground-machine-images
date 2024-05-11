@@ -55,8 +55,38 @@ build {
   }
 
   provisioner "file" {
-    source = "./files/"
-    destination = "/tmp"
+    source = "../files/secret/id_rsa.pub"
+    destination = "/tmp/id_rsa.pub"
+  }
+
+  provisioner "file" {
+    source = "../files/secret/ca.key"
+    destination = "/tmp/ca.key"
+  }
+
+  provisioner "file" {
+    source = "../files/secret/ca.crt"
+    destination = "/tmp/ca.crt"
+  }
+
+  provisioner "file" {
+    source = "../files/secret/kube-api-server.key"
+    destination = "/tmp/kube-api-server.key"
+  }
+
+  provisioner "file" {
+    source = "../files/secret/kube-api-server.crt"
+    destination = "/tmp/kube-api-server.crt"
+  }
+
+  provisioner "file" {
+    source = "../files/secret/service-accounts.key"
+    destination = "/tmp/service-accounts.key"
+  }
+
+  provisioner "file" {
+    source = "../files/secret/service-accounts.crt"
+    destination = "/tmp/service-accounts.crt"
   }
 
   provisioner "ansible-local" {
@@ -64,9 +94,4 @@ build {
     extra_arguments = ["--extra-vars", "\"node_name=${var.node_name}\""]
   }
 
-  provisioner "ansible-local" {
-    count = var.node_name == "server" ? 0 : 1
-    
-    playbook = "./node-playbook.yml"
-  }
 }

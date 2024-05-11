@@ -55,18 +55,27 @@ build {
   }
 
   provisioner "file" {
-    source = "./files/"
-    destination = "/tmp"
+    source = "../files/secret/id_rsa.pub"
+    destination = "/tmp/id_rsa.pub"
+  }
+
+  provisioner "file" {
+    source = "../files/secret/ca.crt"
+    destination = "/tmp/ca.crt"
+  }
+
+  provisioner "file" {
+    source = "../files/secret/${var.node_name}.crt"
+    destination = "/tmp/kubelet.crt"
+  }
+
+  provisioner "file" {
+    source = "../files/secret/${var.node_name}.key"
+    destination = "/tmp/kubelet.key"
   }
 
   provisioner "ansible-local" {
     playbook_file = "./playbook.yml"
     extra_arguments = ["--extra-vars", "\"node_name=${var.node_name}\""]
-  }
-
-  provisioner "ansible-local" {
-    count = var.node_name == "server" ? 0 : 1
-    
-    playbook = "./node-playbook.yml"
   }
 }

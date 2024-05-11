@@ -49,6 +49,34 @@
         regexp: '127.0.0.1   localhost localhost.localdomain localhost4 localhost4.localdomain4'
         replace: '127.0.0.1   {{ node_name }}.kubernetes.local {{ node_name }} localhost4 localhost4.localdomain4'
 
+    - name: Create kubelet directory
+      become: true  
+      become_user: root
+      ansible.builtin.file:
+        path: /var/lib/kubelet
+        state: directory
+
+    - name: Copy ca cert
+      become: true
+      become_user: root
+      ansible.builtin.copy:
+        src: /tmp/ca.crt
+        dest: /var/lib/kubelet/ca.crt
+    
+    - name: Copy kubelet cert
+      become: true
+      become_user: root
+      ansible.builtin.copy:
+        src: /tmp/kubelet.crt
+        dest: /var/lib/kubelet/kubelet.crt
+
+    - name: Copy kubelet key
+      become: true
+      become_user: root
+      ansible.builtin.copy:
+        src: /tmp/kubelet.key
+        dest: /var/lib/kubelet/kubelet.key
+
    handlers:
     - name: restart ssh
       become: true
