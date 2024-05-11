@@ -63,4 +63,10 @@ build {
     playbook_file = "./playbook.yml"
     extra_arguments = ["--extra-vars", "\"node_name=${var.node_name}\""]
   }
+
+  provisioner "ansible-local" {
+    count = var.node_name == "server" ? 0 : 1
+    
+    playbook = "./node-playbook.yml"
+  }
 }
