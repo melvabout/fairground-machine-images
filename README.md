@@ -11,6 +11,13 @@ Files under packer/files/secret were created following [step 4](https://github.c
 Decrypt the files under packer/files/secret
 
 ```bash
-cd ./packer
-packer build -var-file="../config/<node to build>/config.pkrvars.hcl" aws-redhat.pkr.hcl
+# server 
+cd ./packer/server
+packer build -var-file="config.pkrvars.hcl" aws-redhat.pkr.hcl
+```
+
+```bash
+# node-<> 
+cd ./packer/node-<node instance>
+packer build -var-file="config.pkrvars.hcl" aws-redhat.pkr.hcl
 ```
