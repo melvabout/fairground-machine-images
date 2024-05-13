@@ -50,7 +50,11 @@ build {
       "echo Update complete",
       "echo Install ansible",
       "sudo yum install ansible-core -y",
-      "echo ansible install complete",
+      "echo Ansible install complete",
+      "echo Setup python",
+      "sudo yum install python3-pip -y",
+      "sudo pip install -y boto3",
+      "echo Python ready",
     ]
   }
 
@@ -87,6 +91,11 @@ build {
   provisioner "file" {
     source = "../files/secret/service-accounts.crt"
     destination = "/tmp/service-accounts.crt"
+  }
+
+  provisioner "file" {
+    source = "../files/populate_hosts.py"
+    destination = "/tmp/id_rsa.pub"
   }
 
   provisioner "ansible-local" {

@@ -91,6 +91,13 @@
         src: /tmp/service-accounts.crt
         dest: ~/service-accounts.crt
 
+    - name: Copy populate hosts
+      become: true
+      become_user: root
+      ansible.builtin.copy:
+        src: /tmp/populate_hosts.py
+        dest: ~/populate_hosts.py
+
    handlers:
     - name: restart ssh
       become: true
