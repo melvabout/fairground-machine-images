@@ -3,12 +3,20 @@ from boto3 import client
 ec2_client = client("ec2", region_name='eu-west-2')
 
 def get_ip(value: str) -> str:
-    response = ec2_client.describe_instances(Filters=[{
+    response = ec2_client.describe_instances(Filters=[
+        {
             'Name': 'tag:k8',
             'Values': [
                 value,
             ]
-        },])
+        },
+        {
+            'Name': 'instance-state-name',
+            'Values': [
+                'running',
+            ]
+        },
+    ])
 
     if len(response["Reservations"]) > 0:
         return f'{response["Reservations"][0]["Instances"][0]["PrivateIpAddress"].replace("-", ".")} {value}.kubernetes.local {value}\n'
