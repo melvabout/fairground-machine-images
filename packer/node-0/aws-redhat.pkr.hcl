@@ -53,7 +53,7 @@ build {
       "echo Ansible install complete",
       "echo Setup python",
       "sudo yum install python3-pip -y",
-      "sudo pip install -y boto3",
+      "sudo pip install boto3",
       "echo Python ready",
     ]
   }
@@ -80,7 +80,7 @@ build {
 
   provisioner "file" {
     source = "../files/populate_hosts.py"
-    destination = "/tmp/id_rsa.pub"
+    destination = "/tmp/populate_hosts.py"
   }
 
   provisioner "ansible-local" {
