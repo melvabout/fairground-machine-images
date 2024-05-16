@@ -27,17 +27,27 @@ server = get_ip('server')
 node_0 = get_ip('node-0')
 node_1 = get_ip('node-1')
 
-etc_string = '\n\n# Kubernetes The Hard Way\n'
+etc_string = ''
 
-if len(server) > 0:
-    etc_string += server
+with open("/etc/hosts", "r") as f:
 
-if len(node_0) > 0:
-    etc_string += node_0
+    Lines = f.readlines()
+    for line in Lines:
+        if '# Kubernetes The Hard Way' in line:
+            break
+        else:
+            etc_string += f'{line}'
 
-if len(node_1) > 0:
-    etc_string += node_1
+    etc_string += '# Kubernetes The Hard Way\n'
 
-f = open("/etc/hosts", "a")
-f.write(etc_string)
-f.close()
+    if len(server) > 0:
+        etc_string += server
+
+    if len(node_0) > 0:
+        etc_string += node_0
+
+    if len(node_1) > 0:
+        etc_string += node_1
+
+with open("/etc/hosts", "w") as f:
+    f.write(etc_string)
