@@ -77,6 +77,20 @@
         src: /tmp/kubelet.key
         dest: /var/lib/kubelet/kubelet.key
 
+    - name: Copy kubelet kubeconfig
+      become: true
+      become_user: root
+      ansible.builtin.copy:
+        src: /tmp/kubeconfig
+        dest: /var/lib/kubelet/kubeconfig
+    
+    - name: Copy kube-proxy kubeconfig
+      become: true
+      become_user: root
+      ansible.builtin.copy:
+        src: /tmp/kube-proxy.kubeconfig
+        dest: /var/lib/kube-proxy/kubeconfig
+
     - name: Copy populate hosts
       become: true
       become_user: root

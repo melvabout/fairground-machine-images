@@ -98,6 +98,27 @@
         src: /tmp/populate_hosts.py
         dest: ~/populate_hosts.py
 
+    - name: Copy admin.kubeconfig
+      become: true
+      become_user: root
+      ansible.builtin.copy:
+        src: /tmp/admin.kubeconfig
+        dest: ~/admin.kubeconfig
+
+    - name: Copy kube-controller-manager.kubeconfig
+      become: true
+      become_user: root
+      ansible.builtin.copy:
+        src: /tmp/kube-controller-manager.kubeconfig
+        dest: ~/kube-controller-manager.kubeconfig
+
+    - name: Copy kube-scheduler.kubeconfig
+      become: true
+      become_user: root
+      ansible.builtin.copy:
+        src: /tmp/kube-scheduler.kubeconfig
+        dest: ~/kube-scheduler.kubeconfig
+
     - name: Install ssm agent
       become: true
       become_user: root

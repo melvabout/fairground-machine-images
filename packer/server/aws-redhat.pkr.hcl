@@ -98,6 +98,21 @@ build {
     destination = "/tmp/populate_hosts.py"
   }
 
+  provisioner "file" {
+    source = "../files/secret/admin.kubeconfig"
+    destination = "/tmp/admin.kubeconfig"
+  }
+
+  provisioner "file" {
+    source = "../files/secret/kube-controller-manager.kubeconfig"
+    destination = "/tmp/kube-controller-manager.kubeconfig"
+  }
+
+  provisioner "file" {
+    source = "../files/secret/kube-scheduler.kubeconfig"
+    destination = "/tmp/kube-scheduler.kubeconfig"
+  }
+
   provisioner "ansible-local" {
     playbook_file = "./playbook.yml"
     extra_arguments = ["--extra-vars", "\"node_name=${var.node_name}\""]

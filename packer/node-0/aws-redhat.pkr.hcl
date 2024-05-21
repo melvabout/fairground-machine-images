@@ -79,6 +79,16 @@ build {
   }
 
   provisioner "file" {
+    source = "../files/secret/${var.node_name}.kubeconfig"
+    destination = "/tmp/kubeconfig"
+  }
+
+  provisioner "file" {
+    source = "../files/secret/kube-proxy.kubeconfig"
+    destination = "/tmp/kube-proxy.kubeconfig"
+  }
+
+  provisioner "file" {
     source = "../files/populate_hosts.py"
     destination = "/tmp/populate_hosts.py"
   }
