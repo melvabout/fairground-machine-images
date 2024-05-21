@@ -113,6 +113,11 @@ build {
     destination = "/tmp/kube-scheduler.kubeconfig"
   }
 
+  provisioner "file" {
+    source = "../files/secret/encryption-config.yaml"
+    destination = "/tmp/encryption-config.yaml"
+  }
+
   provisioner "ansible-local" {
     playbook_file = "./playbook.yml"
     extra_arguments = ["--extra-vars", "\"node_name=${var.node_name}\""]

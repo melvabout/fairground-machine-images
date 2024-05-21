@@ -119,6 +119,13 @@
         src: /tmp/kube-scheduler.kubeconfig
         dest: ~/kube-scheduler.kubeconfig
 
+    - name: Copy encryption-config.yaml
+      become: true
+      become_user: root
+      ansible.builtin.copy:
+        src: /tmp/encryption-config.yaml
+        dest: ~/encryption-config.yaml
+
     - name: Install ssm agent
       become: true
       become_user: root
