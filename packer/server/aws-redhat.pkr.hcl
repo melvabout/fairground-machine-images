@@ -14,7 +14,12 @@ packer {
 
 variable "node_name" {
   type    = string
-  description = "The name to give to the machine"
+  description = "The name to give to the machine."
+}
+
+variable "etcd_version" {
+  type    = string
+  description = "The version of etcd to install."
 }
 
 locals {
@@ -118,9 +123,19 @@ build {
     destination = "/tmp/encryption-config.yaml"
   }
 
+  provisioner "file" {
+    source = "../files/units/etcd.service"
+    destination = "/tmp/etcd.service"
+  }
+
+   provisioner "file" {
+    source = "../files/start_etcd.sh"
+    destination = "/tmp/start_etcd.sh"
+  }
+
   provisioner "ansible-local" {
     playbook_file = "./playbook.yml"
-    extra_arguments = ["--extra-vars", "\"node_name=${var.node_name}\""]
+    extra_arguments = ["--extra-vars", "\"node_name=${var.node_name} etcd_version=${var.etcd_version}\""]
   }
 
 }

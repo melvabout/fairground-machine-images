@@ -21,7 +21,7 @@
         path: /root/.ssh
         state: directory
     
-    - name: Create ssh directory
+    - name: Write authorized_keys
       become: true  
       become_user: root
       ansible.builtin.shell:
@@ -56,26 +56,26 @@
         src: /tmp/ca.key
         dest: ~/ca.key
 
-    - name: Copy ca cert
-      become: true
-      become_user: root
-      ansible.builtin.copy:
-        src: /tmp/ca.crt
-        dest: ~/ca.crt
+    # - name: Copy ca cert
+    #   become: true
+    #   become_user: root
+    #   ansible.builtin.copy:
+    #     src: /tmp/ca.crt
+    #     dest: ~/ca.crt
     
-    - name: Copy api server key
-      become: true
-      become_user: root
-      ansible.builtin.copy:
-        src: /tmp/kube-api-server.key
-        dest: ~/kube-api-server.key
+    # - name: Copy api server key
+    #   become: true
+    #   become_user: root
+    #   ansible.builtin.copy:
+    #     src: /tmp/kube-api-server.key
+    #     dest: ~/kube-api-server.key
 
-    - name: Copy api server cert
-      become: true
-      become_user: root
-      ansible.builtin.copy:
-        src: /tmp/kube-api-server.crt
-        dest: ~/kube-api-server.crt
+    # - name: Copy api server cert
+    #   become: true
+    #   become_user: root
+    #   ansible.builtin.copy:
+    #     src: /tmp/kube-api-server.crt
+    #     dest: ~/kube-api-server.crt
 
     - name: Copy service accounts key
       become: true
@@ -134,6 +134,40 @@
       notify:
         - start ssm agent
 
+    - name: Configure etcd
+      become: true
+      become_user: root
+      ansible.builtin.shell: |
+        curl -L https://storage.googleapis.com/etcd/{{ etcd_version }}/etcd-{{ etcd_version }}-linux-amd64.tar.gz -o /tmp/etcd-{{ etcd_version }}-linux-amd64.tar.gz
+        mkdir /tmp/etcd-{{ etcd_version }}-linux-amd64
+        tar xzvf /tmp/etcd-{{ etcd_version }}-linux-amd64.tar.gz -C /tmp/etcd-{{ etcd_version }}-linux-amd64 --strip-components=1
+        mv /tmp/etcd-{{ etcd_version }}-linux-amd64/etcd* /usr/bin/
+        mkdir -p /etc/etcd /var/lib/etcd
+        chmod 700 /var/lib/etcd
+        cp /tmp/ca.crt /tmp/kube-api-server.key /tmp/kube-api-server.crt /etc/etcd/
+        cd /root
+        ausearch -c '(etcd)' --raw | audit2allow -M the-etcd
+        semodule -X 300 -i the-etcd.pp
+        restorecon -Rv /usr/bin/etcd
+
+    - name: Copy etcd.service
+      become: true
+      become_user: root
+      ansible.builtin.copy:
+        src: /tmp/etcd.service
+        dest: /etc/systemd/system/
+        mode: '644'
+      notify:
+          - stop etcd
+
+    - name: Copy start_etcd.sh
+      become: true
+      become_user: root
+      ansible.builtin.copy:
+        src: /tmp/start_etcd.sh
+        dest: ~/start_etcd.sh
+        mode: u+rwx
+
    handlers:
     - name: restart ssh
       become: true
@@ -148,3 +182,10 @@
       ansible.builtin.systemd:
         name: amazon-ssm-agent
         state: started
+
+    - name: stop etcd
+      become: true
+      become_user: root
+      ansible.builtin.systemd:
+        name: etcd
+        state: stopped
