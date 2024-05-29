@@ -2,7 +2,7 @@
 
 Buidling instances to satisfy [kubernetes the hard way](https://github.com/kelseyhightower/kubernetes-the-hard-way) using packer and ansible.
 
-Currently complete up to and includeing [Step 7](https://github.com/kelseyhightower/kubernetes-the-hard-way/blob/master/docs/07-bootstrapping-etcd.md)
+Currently complete up to and includeing [Step 8](https://github.com/kelseyhightower/kubernetes-the-hard-way/blob/master/docs/08-bootstrapping-kubernetes-controllers.md)
 
 ## CA
 Files under packer/files/secret were created following [step 4](https://github.com/kelseyhightower/kubernetes-the-hard-way/blob/master/docs/04-certificate-authority.md) of kubernetes the hard way and then sops encrypted.

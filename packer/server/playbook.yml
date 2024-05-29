@@ -119,15 +119,6 @@
         src: /tmp/etcd/
         dest: /etc/etcd/
 
-    - name: Copy etcd.service
-      become: true
-      become_user: root
-      ansible.builtin.copy:
-        src: /tmp/server-service/etcd.service
-        dest: /etc/systemd/system/
-        mode: '644'
-        owner: root
-
     - name: Download kube-apiserver
       become: true
       become_user: root
@@ -178,25 +169,18 @@
         mode: 700
         owner: root
 
-    - name: move kube-apiserver.service 
+    - name: move service files
       become: true
       become_user: root
       ansible.builtin.copy:
-        src: /tmp/server-service/kube-apiserver.service
-        dest: /etc/systemd/system/kube-apiserver.service
-        mode: 644
-        owner: root
-
-    - name: move kube-controller-manager.service
-      become: true
-      become_user: root
-      ansible.builtin.copy:
-        src: /tmp/server-service/kube-controller-manager.service
-        dest: /etc/systemd/system/kube-controller-manager.service
+        src: /tmp/server-service/
+        dest: /etc/systemd/system/
         mode: 644
         owner: root
 
     - name: Create kubernetes config dir
+      become: true
+      become_user: root
       ansible.builtin.file:
         state: directory
         path: /etc/kubernetes/config/
@@ -235,18 +219,4 @@
       ansible.builtin.systemd:
         name: amazon-ssm-agent
         state: started
-    
-    # - name: stop kubernetes controller manager
-    #   become: true
-    #   become_user: root
-    #   ansible.builtin.systemd:
-    #     name: kube-controller-manager
-    #     state: stopped
-
-    # - name: stop kubernetes scheduler
-    #   become: true
-    #   become_user: root
-    #   ansible.builtin.systemd:
-    #     name: kube-scheduler
-    #     state: stopped
     
