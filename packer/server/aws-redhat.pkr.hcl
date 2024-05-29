@@ -103,29 +103,14 @@ build {
     destination = "/tmp/kube-scheduler.kubeconfig"
   }
 
-  provisioner "file" {
-    source = "../files/units/etcd.service"
-    destination = "/tmp/etcd.service"
-  }
-
    provisioner "file" {
     source = "../files/start_control_plane_services.sh"
     destination = "/tmp/start_control_plane_services.sh"
   }
 
   provisioner "file" {
-    source = "../files/units/kube-apiserver.service"
-    destination = "/tmp/kube-apiserver.service"
-  }
-
-  provisioner "file" {
-    source = "../files/units/kube-controller-manager.service"
-    destination = "/tmp/kube-controller-manager.service"
-  }
-
-  provisioner "file" {
-    source = "../files/units/kube-scheduler.service"
-    destination = "/tmp/kube-scheduler.service"
+    source = "../files/units/server-service"
+    destination = "/tmp"
   }
 
   provisioner "file" {

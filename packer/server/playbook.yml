@@ -133,6 +133,15 @@
         src: /tmp/etcd/
         dest: /etc/etcd/
 
+    - name: Copy etcd.service
+      become: true
+      become_user: root
+      ansible.builtin.copy:
+        src: /tmp/server-service/etcd.service
+        dest: /etc/systemd/system/
+        mode: '644'
+        owner: root
+
     - name: Download kube-apiserver
       become: true
       become_user: root
@@ -187,8 +196,17 @@
       become: true
       become_user: root
       ansible.builtin.copy:
-        src: /tmp/kube-apiserver.service
+        src: /tmp/server-service/kube-apiserver.service
         dest: /etc/systemd/system/kube-apiserver.service
+        mode: 644
+        owner: root
+
+    - name: move kube-controller-manager.service
+      become: true
+      become_user: root
+      ansible.builtin.copy:
+        src: /tmp/server-service/kube-controller-manager.service
+        dest: /etc/systemd/system/kube-controller-manager.service
         mode: 644
         owner: root
 
@@ -196,7 +214,6 @@
     #   become: true
     #   become_user: root
     #   ansible.builtin.shell: |
-    #     mv /tmp/kube-controller-manager.kubeconfig /var/lib/kubernetes/
     #     mv /tmp/kube-scheduler.yaml /etc/systemd/system/
     #     cd /root
     #     systemctl daemon-reload
@@ -222,14 +239,6 @@
     #     restorecon -Rv /usr/bin/kube-scheduler
     #   # notify:
     #   #   - stop kubernetes scheduler
-
-    - name: Copy etcd.service
-      become: true
-      become_user: root
-      ansible.builtin.copy:
-        src: /tmp/etcd.service
-        dest: /etc/systemd/system/
-        mode: '644'
 
     - name: Copy start_control_plane_services.sh
       become: true
