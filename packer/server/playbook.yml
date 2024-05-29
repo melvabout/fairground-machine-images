@@ -112,7 +112,7 @@
         cmd: sudo dnf install -y https://s3.amazonaws.com/ec2-downloads-windows/SSMAgent/latest/linux_amd64/amazon-ssm-agent.rpm
       notify:
         - start ssm agent
-        
+
     - name: Download etcd zip
       ansible.builtin.uri: 
         url: https://storage.googleapis.com/etcd/{{ etcd_version }}/etcd-{{ etcd_version }}-linux-amd64.tar.gz
@@ -161,18 +161,37 @@
         src: /tmp/etcd/
         dest: /etc/etcd/
 
-    # - name: Install the Kubernetes Controller Binaries
-    #   become: true
-    #   become_user: root
-    #   ansible.builtin.shell: |
-    #     cd /root
-    #     curl -L https://storage.googleapis.com/kubernetes-release/release/{{ kubernetes_version }}/bin/linux/amd64/kube-apiserver -o kube-apiserver
-    #     curl -L https://storage.googleapis.com/kubernetes-release/release/{{ kubernetes_version }}/bin/linux/amd64/kube-controller-manager -o kube-controller-manager
-    #     curl -L https://storage.googleapis.com/kubernetes-release/release/{{ kubernetes_version }}/bin/linux/amd64/kube-scheduler -o kube-scheduler
-    #     curl -L https://storage.googleapis.com/kubernetes-release/release/{{ kubernetes_version }}/bin/linux/amd64/kubectl -o kubectl
-    #     mkdir -p /etc/kubernetes/config
-    #     chmod +x kube-apiserver kube-controller-manager kube-scheduler kubectl
-    #     mv kube-apiserver kube-controller-manager kube-scheduler kubectl /usr/bin/
+    - name: Download kube-apiserver
+      become: true
+      become_user: root
+      ansible.builtin.uri: 
+        url: https://storage.googleapis.com/kubernetes-release/release/{{ kubernetes_version }}/bin/linux/amd64/kube-apiserver
+        dest: /usr/bin/kube-apiserver
+        mode: u=rx,g=rx,o=rwx
+
+    - name: Download kube-controller-manager
+      become: true
+      become_user: root
+      ansible.builtin.uri: 
+        url: https://storage.googleapis.com/kubernetes-release/release/{{ kubernetes_version }}/bin/linux/amd64/kube-controller-manager
+        dest: /usr/bin/kube-controller-manager
+        mode: u=rx,g=rx,o=rwx
+
+    - name: Download kube-scheduler
+      become: true
+      become_user: root
+      ansible.builtin.uri: 
+        url: https://storage.googleapis.com/kubernetes-release/release/{{ kubernetes_version }}/bin/linux/amd64/kube-scheduler
+        dest: /usr/bin/kube-scheduler
+        mode: u=rx,g=rx,o=rwx
+
+    - name: Download kubectl
+      become: true
+      become_user: root
+      ansible.builtin.uri: 
+        url: https://storage.googleapis.com/kubernetes-release/release/{{ kubernetes_version }}/bin/linux/amd64/kubectl
+        dest: /usr/bin/kubectl
+        mode: u=rx,g=rx,o=rwx
 
     # - name: Configure the Kubernetes API Server
     #   become: true
@@ -233,8 +252,6 @@
         src: /tmp/etcd.service
         dest: /etc/systemd/system/
         mode: '644'
-      # notify:
-      #   - stop etcd
 
     - name: Copy start_control_plane_services.sh
       become: true
@@ -258,13 +275,6 @@
       ansible.builtin.systemd:
         name: amazon-ssm-agent
         state: started
-
-    # - name: stop etcd
-    #   become: true
-    #   become_user: root
-    #   ansible.builtin.systemd:
-    #     name: etcd
-    #     state: stopped
 
     # - name: stop kubernetes api server
     #   become: true
