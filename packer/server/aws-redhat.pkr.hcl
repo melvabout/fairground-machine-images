@@ -93,16 +93,6 @@ build {
     destination = "/tmp/admin.kubeconfig"
   }
 
-  provisioner "file" {
-    source = "../files/secret/kube-controller-manager.kubeconfig"
-    destination = "/tmp/kube-controller-manager.kubeconfig"
-  }
-
-  provisioner "file" {
-    source = "../files/secret/kube-scheduler.kubeconfig"
-    destination = "/tmp/kube-scheduler.kubeconfig"
-  }
-
    provisioner "file" {
     source = "../files/start_control_plane_services.sh"
     destination = "/tmp/start_control_plane_services.sh"

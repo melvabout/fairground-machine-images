@@ -63,20 +63,6 @@
         src: /tmp/admin.kubeconfig
         dest: ~/admin.kubeconfig
 
-    - name: Copy kube-controller-manager.kubeconfig
-      become: true
-      become_user: root
-      ansible.builtin.copy:
-        src: /tmp/kube-controller-manager.kubeconfig
-        dest: ~/kube-controller-manager.kubeconfig
-
-    - name: Copy kube-scheduler.kubeconfig
-      become: true
-      become_user: root
-      ansible.builtin.copy:
-        src: /tmp/kube-scheduler.kubeconfig
-        dest: ~/kube-scheduler.kubeconfig
-
     - name: Install ssm agent
       become: true
       become_user: root
@@ -210,35 +196,22 @@
         mode: 644
         owner: root
 
-    # - name: Configure the Kubernetes Controller Manager
-    #   become: true
-    #   become_user: root
-    #   ansible.builtin.shell: |
-    #     mv /tmp/kube-scheduler.yaml /etc/systemd/system/
-    #     cd /root
-    #     systemctl daemon-reload
-    #     systemctl enable kube-controller-manager
-    #     ausearch -ts recent -sv no | grep kube-controller-manager | audit2allow -M the-kube-controller-manager
-    #     semodule -X 300 -i the-kube-controller-manager.pp
-    #     restorecon -Rv /usr/bin/kube-controller-manager
-    #   # notify:
-    #   #   - stop kubernetes controller manager
+    - name: Create kubernetes config dir
+      ansible.builtin.file:
+        state: directory
+        path: /etc/kubernetes/config/
+        mode: 700
+        owner: root
+        recurse: true
 
-    # - name: Configure the Kubernetes Scheduler
-    #   become: true
-    #   become_user: root
-    #   ansible.builtin.shell: |
-    #     mv /tmp/kube-scheduler.kubeconfig /var/lib/kubernetes/
-    #     mv /tmp/kube-scheduler.yaml /etc/kubernetes/config/
-    #     mv /tmp/kube-scheduler.service /etc/systemd/system/
-    #     cd /root
-    #     systemctl daemon-reload
-    #     systemctl enable kube-scheduler
-    #     ausearch -ts recent -sv no | grep kube-scheduler | audit2allow -M the-kube-scheduler
-    #     semodule -X 300 -i the-kube-scheduler.pp
-    #     restorecon -Rv /usr/bin/kube-scheduler
-    #   # notify:
-    #   #   - stop kubernetes scheduler
+    - name: move kube-scheduler.yaml
+      become: true
+      become_user: root
+      ansible.builtin.copy:
+        src: /tmp/kube-scheduler.yaml
+        dest: /etc/kubernetes/config/kube-scheduler.yaml
+        mode: 644
+        owner: root
 
     - name: Copy start_control_plane_services.sh
       become: true
