@@ -74,23 +74,13 @@ build {
   }
 
   provisioner "file" {
-    source = "../files/secret/ca.key"
-    destination = "/tmp/ca.key"
-  }
-
-  provisioner "file" {
     source = "../files/secret/etcd"
     destination = "/tmp"
   }
 
   provisioner "file" {
-    source = "../files/secret/service-accounts.key"
-    destination = "/tmp/service-accounts.key"
-  }
-
-  provisioner "file" {
-    source = "../files/secret/service-accounts.crt"
-    destination = "/tmp/service-accounts.crt"
+    source = "../files/secret/kubernetes"
+    destination = "/tmp"
   }
 
   provisioner "file" {
@@ -111,11 +101,6 @@ build {
   provisioner "file" {
     source = "../files/secret/kube-scheduler.kubeconfig"
     destination = "/tmp/kube-scheduler.kubeconfig"
-  }
-
-  provisioner "file" {
-    source = "../files/secret/encryption-config.yaml"
-    destination = "/tmp/encryption-config.yaml"
   }
 
   provisioner "file" {

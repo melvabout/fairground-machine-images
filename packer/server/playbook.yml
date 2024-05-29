@@ -48,27 +48,6 @@
         path: /etc/hosts
         regexp: '127.0.0.1   localhost localhost.localdomain localhost4 localhost4.localdomain4'
         replace: '127.0.0.1   {{ node_name }}.kubernetes.local {{ node_name }} localhost4 localhost4.localdomain4'
-  
-    - name: Copy ca key
-      become: true
-      become_user: root
-      ansible.builtin.copy:
-        src: /tmp/ca.key
-        dest: ~/ca.key
-
-    - name: Copy service accounts key
-      become: true
-      become_user: root
-      ansible.builtin.copy:
-        src: /tmp/service-accounts.key
-        dest: ~/service-accounts.key
-
-    - name: Copy service accounts cert
-      become: true
-      become_user: root
-      ansible.builtin.copy:
-        src: /tmp/service-accounts.crt
-        dest: ~/service-accounts.crt
 
     - name: Copy populate hosts
       become: true
@@ -97,13 +76,6 @@
       ansible.builtin.copy:
         src: /tmp/kube-scheduler.kubeconfig
         dest: ~/kube-scheduler.kubeconfig
-
-    - name: Copy encryption-config.yaml
-      become: true
-      become_user: root
-      ansible.builtin.copy:
-        src: /tmp/encryption-config.yaml
-        dest: ~/encryption-config.yaml
 
     - name: Install ssm agent
       become: true
@@ -193,26 +165,32 @@
         dest: /usr/bin/kubectl
         mode: u=rx,g=rx,o=rwx
 
-    # - name: Configure the Kubernetes API Server
-    #   become: true
-    #   become_user: root
-    #   ansible.builtin.shell: |
-    #     mkdir -p /var/lib/kubernetes/
-    #     mv /tmp/ca.crt /tmp/ca.key \
-    #     /tmp/kube-api-server.key /tmp/kube-api-server.crt \
-    #     /tmp/service-accounts.key /tmp/service-accounts.crt \
-    #     /tmp/encryption-config.yaml \
-    #     /var/lib/kubernetes/
-    #     mv /tmp/kube-apiserver.service /etc/systemd/system/kube-apiserver.service
-    #     chmod 644 /etc/systemd/system/kube-apiserver.service 
-    #     cd /root
-    #     systemctl daemon-reload
-    #     systemctl enable kube-apiserver
-    #     ausearch -ts recent -sv no | grep kube-apiserver | audit2allow -M the-kube-apiserver
-    #     semodule -X 300 -i the-kube-apiserver.pp
-    #     restorecon -Rv /usr/bin/kube-apiserver
-    #   # notify:
-    #   #   - stop kubernetes api server
+    - name: move kubernetes lib files
+      become: true
+      become_user: root
+      ansible.builtin.copy:
+        src: /tmp/kubernetes/
+        dest: /var/lib/kubernetes/
+        mode: 700
+        owner: root
+
+    - name: move kubernetes lib files from tmp etcd
+      become: true
+      become_user: root
+      ansible.builtin.copy:
+        src: /tmp/etcd/
+        dest: /var/lib/kubernetes/
+        mode: 700
+        owner: root
+
+    - name: move kube-apiserver.service 
+      become: true
+      become_user: root
+      ansible.builtin.copy:
+        src: /tmp/kube-apiserver.service
+        dest: /etc/systemd/system/kube-apiserver.service
+        mode: 644
+        owner: root
 
     # - name: Configure the Kubernetes Controller Manager
     #   become: true
@@ -275,13 +253,6 @@
       ansible.builtin.systemd:
         name: amazon-ssm-agent
         state: started
-
-    # - name: stop kubernetes api server
-    #   become: true
-    #   become_user: root
-    #   ansible.builtin.systemd:
-    #     name: kube-apiserver
-    #     state: stopped
     
     # - name: stop kubernetes controller manager
     #   become: true
