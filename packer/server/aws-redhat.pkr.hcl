@@ -22,6 +22,11 @@ variable "etcd_version" {
   description = "The version of etcd to install."
 }
 
+variable "kubernetes_version" {
+  type    = string
+  description = "The version of kubernetes to install."
+}
+
 locals {
   timestamp = regex_replace(timestamp(), "[- TZ:]", "")
 }
@@ -129,13 +134,38 @@ build {
   }
 
    provisioner "file" {
-    source = "../files/start_etcd.sh"
-    destination = "/tmp/start_etcd.sh"
+    source = "../files/start_control_plane_services.sh"
+    destination = "/tmp/start_control_plane_services.sh"
+  }
+
+  provisioner "file" {
+    source = "../files/units/kube-apiserver.service"
+    destination = "/tmp/kube-apiserver.service"
+  }
+
+  provisioner "file" {
+    source = "../files/units/kube-controller-manager.service"
+    destination = "/tmp/kube-controller-manager.service"
+  }
+
+  provisioner "file" {
+    source = "../files/units/kube-scheduler.service"
+    destination = "/tmp/kube-scheduler.service"
+  }
+
+  provisioner "file" {
+    source = "../files/configs/kube-scheduler.yaml"
+    destination = "/tmp/kube-scheduler.yaml"
+  }
+
+  provisioner "file" {
+    source = "../files/configs/kube-apiserver-to-kubelet.yaml"
+    destination = "/tmp/kube-apiserver-to-kubelet.yaml"
   }
 
   provisioner "ansible-local" {
     playbook_file = "./playbook.yml"
-    extra_arguments = ["--extra-vars", "\"node_name=${var.node_name} etcd_version=${var.etcd_version}\""]
+    extra_arguments = ["--extra-vars", "\"node_name=${var.node_name} etcd_version=${var.etcd_version} kubernetes_version=${var.kubernetes_version}\""]
   }
 
 }

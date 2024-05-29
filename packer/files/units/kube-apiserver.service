@@ -3,7 +3,7 @@ Description=Kubernetes API Server
 Documentation=https://github.com/kubernetes/kubernetes
 
 [Service]
-ExecStart=/usr/local/bin/kube-apiserver \
+ExecStart=/usr/bin/kube-apiserver \
   --allow-privileged=true \
   --apiserver-count=1 \
   --audit-log-maxage=30 \
