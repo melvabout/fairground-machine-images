@@ -79,18 +79,8 @@ build {
   }
 
   provisioner "file" {
-    source = "../files/secret/ca.crt"
-    destination = "/tmp/ca.crt"
-  }
-
-  provisioner "file" {
-    source = "../files/secret/kube-api-server.key"
-    destination = "/tmp/kube-api-server.key"
-  }
-
-  provisioner "file" {
-    source = "../files/secret/kube-api-server.crt"
-    destination = "/tmp/kube-api-server.crt"
+    source = "../files/secret/etcd"
+    destination = "/tmp"
   }
 
   provisioner "file" {
