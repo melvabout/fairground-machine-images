@@ -64,23 +64,13 @@ build {
   }
 
   provisioner "file" {
-    source = "../files/secret/ca.crt"
+    source = "../files/secret/etcd/ca.crt"
     destination = "/tmp/ca.crt"
   }
 
   provisioner "file" {
-    source = "../files/secret/${var.node_name}.crt"
-    destination = "/tmp/kubelet.crt"
-  }
-
-  provisioner "file" {
-    source = "../files/secret/${var.node_name}.key"
-    destination = "/tmp/kubelet.key"
-  }
-
-  provisioner "file" {
-    source = "../files/secret/${var.node_name}.kubeconfig"
-    destination = "/tmp/kubeconfig"
+    source = "../files/secret/${var.node_name}"
+    destination = "/tmp"
   }
 
   provisioner "file" {

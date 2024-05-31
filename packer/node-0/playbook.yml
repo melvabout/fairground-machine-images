@@ -70,26 +70,12 @@
         src: /tmp/ca.crt
         dest: /var/lib/kubelet/ca.crt
     
-    - name: Copy kubelet cert
+    - name: move kubelet files
       become: true
       become_user: root
       ansible.builtin.copy:
-        src: /tmp/kubelet.crt
-        dest: /var/lib/kubelet/kubelet.crt
-
-    - name: Copy kubelet key
-      become: true
-      become_user: root
-      ansible.builtin.copy:
-        src: /tmp/kubelet.key
-        dest: /var/lib/kubelet/kubelet.key
-
-    - name: Copy kubelet kubeconfig
-      become: true
-      become_user: root
-      ansible.builtin.copy:
-        src: /tmp/kubeconfig
-        dest: /var/lib/kubelet/kubeconfig
+        src: /tmp/{{ node_name }}/
+        dest: /var/lib/kubelet/
     
     - name: Copy kube-proxy kubeconfig
       become: true
