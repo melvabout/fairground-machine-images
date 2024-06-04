@@ -17,6 +17,10 @@ jobs:
         with:
           aws-region: eu-west-2
           role-to-assume: arn:aws:iam::905418442662:role/github-fairground-machine-images-deployment-role
+      - name: Decrypt secrets
+        run: |
+          cd packer/files
+          ./decrypt.sh
       - name: Setup `packer`
         uses: hashicorp/setup-packer@v3.1.0
         with:
