@@ -33,13 +33,13 @@ jobs:
         run: |
           cd packer/node
           packer build -var-file="config.pkrvars.hcl" aws-redhat.pkr.hcl
-        env: |
-          PKR_VAR_node_name=node-0
+        env:
+          PKR_VAR_node_name: node-0
       - name: Run `packer build node 1`
         run: |
           cd packer/node
           packer build -var-file="config.pkrvars.hcl" aws-redhat.pkr.hcl
-        env: |
-          PKR_VAR_node_name=node-1
+        env:
+          PKR_VAR_node_name: node-1
 
           
