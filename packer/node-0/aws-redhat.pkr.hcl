@@ -14,8 +14,29 @@ packer {
 
 variable "node_name" {
   type    = string
-  description = "The name to give to the machine"
+  description = "The name to give to the machine."
 }
+
+variable "runc_version" {
+  type    = string
+  description = "The version of runc to use."
+}
+
+variable "kubernetes_version" {
+  type    = string
+  description = "The version of kubernetes to install."
+}
+
+variable "crictl_version" {
+  type    = string
+  description = "The version of crictl to use."
+}
+
+variable "containerd_version" {
+  type    = string
+  description = "The version of containerd to use."
+}
+
 
 locals {
   timestamp = regex_replace(timestamp(), "[- TZ:]", "")
@@ -83,8 +104,28 @@ build {
     destination = "/tmp/populate_hosts.py"
   }
 
+  provisioner "file" {
+    source = "../files/configs/${var.node_name}-config"
+    destination = "/tmp"
+  }
+
+  provisioner "file" {
+    source = "../files/configs/nodes"
+    destination = "/tmp"
+  }
+
+  provisioner "file" {
+    source = "../files/units/node-service"
+    destination = "/tmp"
+  }
+
+  provisioner "file" {
+    source = "../files/start_node_services.sh"
+    destination = "/tmp/start_node_services.sh"
+  }
+
   provisioner "ansible-local" {
     playbook_file = "./playbook.yml"
-    extra_arguments = ["--extra-vars", "\"node_name=${var.node_name}\""]
+    extra_arguments = ["--extra-vars", "\"node_name=${var.node_name} runc_version=${var.runc_version} kubernetes_version=${var.kubernetes_version} crictl_version=${var.crictl_version} containerd_version=${var.containerd_version}\""]
   }
 }

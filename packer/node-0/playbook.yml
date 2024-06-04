@@ -99,6 +99,229 @@
       notify:
         - start ssm agent
 
+    - name: Create cni net.d dir
+      become: true
+      become_user: root
+      ansible.builtin.file:
+        state: directory
+        path: /etc/cni/net.d/
+        mode: '700'
+        owner: root
+        recurse: true
+
+    - name: Create cni bin dir
+      become: true
+      become_user: root
+      ansible.builtin.file:
+        state: directory
+        path: /etc/cni/bin/
+        mode: '700'
+        owner: root
+        recurse: true
+
+    - name: Create kubelet dir
+      become: true
+      become_user: root
+      ansible.builtin.file:
+        state: directory
+        path: /var/lib/kubelet/
+        mode: '700'
+        owner: root
+        recurse: true
+
+    - name: Create kube-proxy dir
+      become: true
+      become_user: root
+      ansible.builtin.file:
+        state: directory
+        path: /var/lib/kube-proxy/
+        mode: '700'
+        owner: root
+        recurse: true
+    
+    - name: Create lib kubernetes dir
+      become: true
+      become_user: root
+      ansible.builtin.file:
+        state: directory
+        path: /var/lib/kubernetes/
+        mode: '700'
+        owner: root
+        recurse: true
+
+    - name: Create run kubernetes dir
+      become: true
+      become_user: root
+      ansible.builtin.file:
+        state: directory
+        path: /var/run/kubernetes/
+        mode: '700'
+        owner: root
+        recurse: true
+
+    - name: Install OS dependencies
+      become: true
+      become_user: root
+      ansible.builtin.yum:
+        name: "{{ packages }}"
+        state: latest
+      vars:
+        packages:
+        - socat
+        - conntrack
+        - ipset
+
+    - name: Disable swap for current session
+      become: true
+      become_user: root
+      command: swapoff -a
+
+    - name: Disable swap permanently, persist reboots
+      become: true
+      become_user: root
+      replace:
+        path: /etc/fstab
+        regexp: '^(\s*)([^#\n]+\s+)(\w+\s+)swap(\s+.*)$'
+        replace: '#\1\2\3swap\4'
+        backup: yes
+
+    - name: Make root containerd dir
+      ansible.builtin.file:
+        state: directory
+        path: /tmp/containerd/
+        mode: '777'
+
+    - name: Download runc file
+      become: true
+      become_user: root
+      ansible.builtin.uri: 
+        url: https://github.com/opencontainers/runc/releases/download/{{ runc_version }}/runc.amd64
+        dest: /usr/bin/runc
+        mode: u=rx,g=rx,o=rwx
+
+    - name: Download kubelet file
+      become: true
+      become_user: root
+      ansible.builtin.uri: 
+        url: https://storage.googleapis.com/kubernetes-release/release/{{ kubernetes_version }}/bin/linux/amd64/kubelet
+        dest: /usr/bin/kubelet
+        mode: u=rx,g=rx,o=rwx
+
+    - name: Download kube-proxy file
+      become: true
+      become_user: root
+      ansible.builtin.uri: 
+        url: https://storage.googleapis.com/kubernetes-release/release/{{ kubernetes_version }}/bin/linux/amd64/kube-proxy
+        dest: /usr/bin/kube-proxy
+        mode: u=rx,g=rx,o=rwx
+
+    - name: Download kubectl file
+      become: true
+      become_user: root
+      ansible.builtin.uri: 
+        url: https://storage.googleapis.com/kubernetes-release/release/{{ kubernetes_version }}/bin/linux/amd64/kubectl
+        dest: /usr/bin/kubectl
+        mode: u=rx,g=rx,o=rwx
+
+    - name: Download crictl file
+      ansible.builtin.uri: 
+        url: https://github.com/kubernetes-sigs/cri-tools/releases/download/{{ crictl_version }}/crictl-{{ crictl_version }}-linux-amd64.tar.gz
+        dest: /tmp/crictl-{{ crictl_version }}-linux-amd64.tar.gz
+        mode: '777'
+
+    - name: Unzip crictl
+      ansible.builtin.unarchive:
+        src: /tmp/crictl-{{ crictl_version }}-linux-amd64.tar.gz
+        dest: /tmp/
+
+    - name: Copy crictl
+      become: true
+      become_user: root
+      ansible.builtin.copy:
+        src: /tmp/crictl
+        dest: /usr/bin/crictl
+        mode: u=rx,g=rx,o=rwx
+
+    - name: Download containerd file
+      ansible.builtin.uri: 
+        url: https://github.com/containerd/containerd/releases/download/v{{ containerd_version }}/containerd-{{ containerd_version }}-linux-amd64.tar.gz
+        dest: /tmp/
+        mode: '777'
+
+    - name: Unzip containerd
+      ansible.builtin.unarchive:
+        src: /tmp/containerd-{{ containerd_version }}-linux-amd64.tar.gz
+        dest: /tmp/containerd/
+
+    - name: move containerd files
+      become: true
+      become_user: root
+      ansible.builtin.copy:
+        src: "{{ item }}"
+        dest: /bin/
+        mode: u=rx,g=rx,o=rwx
+      with_fileglob:
+        - "/tmp/containerd/bin/*"
+
+    - name: Copy 10-bridge.conf
+      become: true
+      become_user: root
+      ansible.builtin.copy:
+        src: /tmp/{{ node_name }}-config/10-bridge.conf
+        dest: /etc/cni/net.d/10-bridge.conf
+
+    - name: Copy 99-loopback.conf
+      become: true
+      become_user: root
+      ansible.builtin.copy:
+        src: /tmp/nodes/99-loopback.conf
+        dest: /etc/cni/net.d/99-loopback.conf
+
+    - name: Create etc containerd directory
+      become: true  
+      become_user: root
+      ansible.builtin.file:
+        path: /etc/containerd
+        state: directory
+
+    - name: Copy containerd-config.toml
+      become: true
+      become_user: root
+      ansible.builtin.copy:
+        src: /tmp/nodes/containerd-config.toml
+        dest: /etc/containerd/config.toml
+
+    - name: Copy kubelet-config.yaml
+      become: true
+      become_user: root
+      ansible.builtin.copy:
+        src: /tmp/{{ node_name }}-config/kubelet-config.yaml
+        dest: /var/lib/kubelet/kubelet-config.yaml
+
+    - name: Copy kube-proxy-config.yaml
+      become: true
+      become_user: root
+      ansible.builtin.copy:
+        src: /tmp/nodes/kube-proxy-config.yaml
+        dest: /var/lib/kube-proxy/kube-proxy-config.yaml
+
+    - name: move service files
+      become: true
+      become_user: root
+      ansible.builtin.copy:
+        src: /tmp/node-service/
+        dest: /etc/systemd/system/
+        mode: '644'
+        owner: root
+
+    - name: Copy start_node_services.sh
+      become: true
+      become_user: root
+      ansible.builtin.copy:
+        src: /tmp/start_node_services.sh
+        dest: ~/start_node_services.sh
+        mode: u+rwx
+
    handlers:
     - name: restart ssh
       become: true
