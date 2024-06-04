@@ -7,7 +7,7 @@ permissions:
   contents: read 
 
 jobs:
-  Deploy-Website:
+  Build-node-images:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -28,7 +28,7 @@ jobs:
       - name: Run `packer validate`
         run: |
           cd packer/node
-          packer validate ./image.pkr.hcl
+          packer validate aws-redhat.pkr.hcl
       - name: Run `packer build node 0`
         run: |
           cd packer/node
