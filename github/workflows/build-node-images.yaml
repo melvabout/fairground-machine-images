@@ -1,0 +1,45 @@
+name: Build node images
+
+on: workflow_dispatch
+
+permissions:
+  id-token: write
+  contents: read 
+
+jobs:
+  Deploy-Website:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Assume Role
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-region: eu-west-2
+          role-to-assume: arn:aws:iam::905418442662:role/github-fairground-machine-images-deployment-role
+      - name: Setup `packer`
+        uses: hashicorp/setup-packer@v3.1.0
+        with:
+          version: v1.10.3
+      - name: Run `packer init`
+        run: |
+          cd packer/node
+          packer init --force aws-redhat.pkr.hcl
+      - name: Run `packer validate`
+        run: |
+          cd packer/node
+          packer validate ./image.pkr.hcl
+      - name: Run `packer build node 0`
+        run: |
+          cd packer/node
+          packer build -var-file="config.pkrvars.hcl" aws-redhat.pkr.hcl
+        env: |
+          PKR_VAR_node_name=node-0
+      - name: Run `packer build node 1`
+        run: |
+          cd packer/node
+          packer build -var-file="config.pkrvars.hcl" aws-redhat.pkr.hcl
+        env: |
+          PKR_VAR_node_name=node-1
+
+          
