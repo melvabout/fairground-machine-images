@@ -37,6 +37,11 @@ variable "containerd_version" {
   description = "The version of containerd to use."
 }
 
+variable "cni_version" {
+  type    = string
+  description = "The version of cni plugins to use."
+}
+
 
 locals {
   timestamp = regex_replace(timestamp(), "[- TZ:]", "")
@@ -126,6 +131,6 @@ build {
 
   provisioner "ansible-local" {
     playbook_file = "./playbook.yml"
-    extra_arguments = ["--extra-vars", "\"node_name=${var.node_name} runc_version=${var.runc_version} kubernetes_version=${var.kubernetes_version} crictl_version=${var.crictl_version} containerd_version=${var.containerd_version}\""]
+    extra_arguments = ["--extra-vars", "\"node_name=${var.node_name} runc_version=${var.runc_version} kubernetes_version=${var.kubernetes_version} crictl_version=${var.crictl_version} containerd_version=${var.containerd_version} cni_version=${var.cni_version}\""]
   }
 }

@@ -21,7 +21,7 @@
         path: /root/.ssh
         state: directory
     
-    - name: Create ssh directory
+    - name: Append ssh keys
       become: true  
       become_user: root
       ansible.builtin.shell:
@@ -262,6 +262,28 @@
         mode: u=rx,g=rx,o=rwx
       with_fileglob:
         - "/tmp/containerd/bin/*"
+
+    - name: Create cni bin directory
+      become: true  
+      become_user: root
+      ansible.builtin.file:
+        path: /opt/cni/bin/
+        state: directory
+        mode: '755'
+
+    - name: Download cni-plugins file
+      ansible.builtin.uri: 
+        url: https://github.com/containernetworking/plugins/releases/download/{{ cni_version }}/cni-plugins-linux-amd64-{{ cni_version }}.tgz
+        dest: /tmp/
+        mode: '777'
+
+    - name: Unzip cni-plugins
+      become: true  
+      become_user: root
+      ansible.builtin.unarchive:
+        src: /tmp/cni-plugins-linux-amd64-{{ cni_version }}.tgz
+        dest: /opt/cni/bin/
+        mode: '755'
 
     - name: Copy 10-bridge.conf
       become: true
