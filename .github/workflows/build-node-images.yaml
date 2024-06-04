@@ -17,6 +17,8 @@ jobs:
         with:
           aws-region: eu-west-2
           role-to-assume: arn:aws:iam::905418442662:role/github-fairground-machine-images-deployment-role
+      - name: Sops Binary Installer
+        uses: mdgreenwald/mozilla-sops-action@v1.6.0
       - name: Decrypt secrets
         run: |
           cd packer/files
