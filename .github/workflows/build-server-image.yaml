@@ -35,9 +35,7 @@ jobs:
         run: |
           cd packer/server
           packer validate -var-file="config.pkrvars.hcl" aws-redhat.pkr.hcl
-        env:
-          PKR_VAR_node_name: node-1
-      - name: Run `packer build node 0`
+      - name: Run `packer build server`
         run: |
           cd packer/server
           packer build -var-file="config.pkrvars.hcl" aws-redhat.pkr.hcl
