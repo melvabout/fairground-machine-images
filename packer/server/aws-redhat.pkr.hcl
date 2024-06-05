@@ -113,6 +113,16 @@ build {
     destination = "/tmp/kube-apiserver-to-kubelet.yaml"
   }
 
+  provisioner "file" {
+    source = "../files/secret/admin"
+    destination = "/tmp"
+  }
+
+  provisioner "file" {
+    source = "../files/secret/kube-config"
+    destination = "/tmp/kube-config"
+  }
+
   provisioner "ansible-local" {
     playbook_file = "./playbook.yml"
     extra_arguments = ["--extra-vars", "\"node_name=${var.node_name} etcd_version=${var.etcd_version} kubernetes_version=${var.kubernetes_version}\""]

@@ -99,7 +99,7 @@
       ansible.builtin.file: 
         state: directory
         path: /var/lib/etcd
-        mode: 700
+        mode: '700'
         owner: root
 
     - name: move etcd bin files
@@ -157,7 +157,7 @@
       ansible.builtin.copy:
         src: /tmp/kubernetes/
         dest: /var/lib/kubernetes/
-        mode: 700
+        mode: '700'
         owner: root
 
     - name: move kubernetes lib files from tmp etcd
@@ -166,7 +166,7 @@
       ansible.builtin.copy:
         src: /tmp/etcd/
         dest: /var/lib/kubernetes/
-        mode: 700
+        mode: '700'
         owner: root
 
     - name: move service files
@@ -175,7 +175,7 @@
       ansible.builtin.copy:
         src: /tmp/server-service/
         dest: /etc/systemd/system/
-        mode: 644
+        mode: '644'
         owner: root
 
     - name: Create kubernetes config dir
@@ -184,7 +184,7 @@
       ansible.builtin.file:
         state: directory
         path: /etc/kubernetes/config/
-        mode: 700
+        mode: '700'
         owner: root
         recurse: true
 
@@ -194,7 +194,7 @@
       ansible.builtin.copy:
         src: /tmp/kube-scheduler.yaml
         dest: /etc/kubernetes/config/kube-scheduler.yaml
-        mode: 644
+        mode: '644'
         owner: root
 
     - name: Copy start_control_plane_services.sh
@@ -204,6 +204,33 @@
         src: /tmp/start_control_plane_services.sh
         dest: ~/start_control_plane_services.sh
         mode: u+rwx
+
+    - name: move admin files
+      become: true
+      become_user: root
+      ansible.builtin.copy:
+        src: /tmp/admin/
+        dest: /root/admin/
+        mode: '700'
+        owner: root
+
+    - name: Create kube config dir
+      become: true  
+      become_user: root
+      ansible.builtin.file:
+        path: /root/.kube
+        state: directory
+        owner: root
+        mode: '700'
+
+    - name: move kube config
+      become: true
+      become_user: root
+      ansible.builtin.copy:
+        src: /tmp/kube-config
+        dest: /root/.kube/config
+        mode: '700'
+        owner: root
 
    handlers:
     - name: restart ssh
